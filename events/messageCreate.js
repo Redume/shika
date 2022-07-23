@@ -19,6 +19,11 @@ module.exports = async (client, message) => {
         }
     })
 
+    const user = await pool.query(`SELECT * FROM person WHERE user_id = $1`, [message.author.id]);
+    if(message.channel.id === user.rows[0].channel_id) {
+        await pool.query("UPDATE person SET messages = messages + 1 WHERE user_id = $1", [message.author.id]);
+    }
+
     const prefix = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [message.guildId]).then((x) => x.rows[0].prefix)
     if (!message.content.startsWith(prefix) || message.cleanContent === prefix) return;
 

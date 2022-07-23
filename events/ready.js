@@ -18,10 +18,10 @@ module.exports = async (client) => {
         let embed = new Discord.EmbedBuilder()
         embed.setTitle(`${client.user.username}`)
         embed.setColor("#d7342a")
-        embed.addFields([{name: `Название: `, value: `\`${error.name}\``}])
-        embed.addFields([{name: `Откуда: `, value: `\`${error.path || 'Unknow'}\``}])
-        embed.addFields([{name: `Описание: `, value: `\`\`\`css\n${error.message.slice(0, 1000)}\`\`\``}])
-        embed.addFields([{name: `Трейс: `, value: `\`\`\`css\n${error.stack.slice(0, 1000)}\`\`\``}])
+        embed.addFields([{name: `Название: `, value: `\`${error.name}\``},
+                               {name: `Откуда: `, value: `\`${error.path || 'Unknow'}\``},
+                               {name: `Описание: `, value: `\`\`\`css\n${error.message.slice(0, 1000)}\`\`\``},
+                               {name: `Трейс: `, value: `\`\`\`css\n${error.stack.slice(0, 1000)}\`\`\``}])
         hook.send({embeds: [embed]})
     })
 

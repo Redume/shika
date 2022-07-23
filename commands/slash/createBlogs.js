@@ -22,7 +22,7 @@ async function Run(client, interaction) {
     const user = await pool.query("SELECT * FROM person WHERE user_id = $1", [interaction.user.id]);
     const guild = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [interaction.guildId]);
 
-    if(user.rows[0].blog ? user.rows[0].blog : false) return interaction.reply({content: ":x: У вас уже есть блог", ephemeral: true});
+    if(user.rows[0]?.blog ? user.rows[0]?.blog : false) return interaction.reply({content: ":x: У вас уже есть блог", ephemeral: true});
 
     const channel = await interaction.guild.channels.create({name: interaction.options.getString("name"), permissionOverwrites: [{
             id: interaction.guild.id,
@@ -40,5 +40,5 @@ async function Run(client, interaction) {
     await pool.query("UPDATE guild SET blog_count = blog_count + 1");
 
     interaction.reply({content: `Ваш личный блог успешно создан!
-                                     <#${channel.id}>`});
+                                     <#${channel.id}>`, ephemeral: true});
 }
