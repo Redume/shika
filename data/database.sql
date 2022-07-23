@@ -1,5 +1,6 @@
 CREATE TABLE person(
     user_id TEXT,
+    guild_id TEXT,
     channel_id TEXT DEFAULT 'None',
     blog BOOLEAN DEFAULT FALSE,
     messages INTEGER DEFAULT 0

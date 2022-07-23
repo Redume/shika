@@ -15,8 +15,8 @@ module.exports = async (client, interaction) => {
             } else if (option.value) args.push(option.value);
         }
 
-        await pool.query(`SELECT * FROM person WHERE user_id = $1`, [interaction.user.id], async (err, result) => {
-            if (interaction.user.id.includes(result.rows)) await pool.query("INSERT INTO person (user_id) VALUES ($1) RETURNING *", [interaction.user.id]);
+        await pool.query(`SELECT * FROM person WHERE guild_id = $1`, [interaction.guildId], async (err, result) => {
+            if (interaction.user.id.includes(result.rows)) await pool.query("INSERT INTO person (user_id, guild_id) VALUES ($1, $2) RETURNING *", [interaction.user.id, interaction.guildId]);
         })
 
         await pool.query(`SELECT * FROM guild WHERE guild_id = $1`, [interaction.guildId], async (err, result) => {

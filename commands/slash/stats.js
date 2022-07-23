@@ -1,24 +1,24 @@
-const { ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder} = require('discord.js');
+const { ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const pool = require("../../postgresql")
 module.exports = {
     name: "info",
-    description: "Информация о блогах",
+    description: "Информация о блогах.",
     type: ApplicationCommandType.String,
     options: [{
         name: "target",
-        description: "Укажите пользователя чью информацию хотите посмотреть",
+        description: "Укажите пользователя чью информацию хотите посмотреть.",
         type: ApplicationCommandOptionType.User,
     }],
     run: Run,
 }
 async function Run(client, interaction) {
-    const user = await pool.query("SELECT * FROM person WHERE user_id = $1", [interaction.user.id || interaction.options.getUser("target").id]);
+    const user = await pool.query("SELECT * FROM person WHERE user_id = $1 AND guild_id = $2", [interaction.options.getUser("target").id || interaction.user.id, interaction.guildId]);
     const guild = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [interaction.guildId]);
     const channel_timestamps = Math.round(new Date(client.guilds.cache.get(interaction.guild.id).channels.cache.get(user.rows[0].channel_id).createdAt).getTime() / 1000);
     const embed = new EmbedBuilder();
 
     embed.addFields([{name: "Блог", value: `<#${user.rows[0].channel_id}>`},
-        {name: "Всего постов", value: `${user.rows[0].messages}`},
+        {name: "Всего сообщенеий", value: `${user.rows[0].messages}`},
         {name: "Блог создан", value: `<t:${channel_timestamps}:d> <t:${channel_timestamps}:t> | <t:${channel_timestamps}:R>`}]);
 
     embed.setFooter({text: `Всего блогов: ${guild.rows[0].blog_count}`});

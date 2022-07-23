@@ -2,13 +2,12 @@ const { ApplicationCommandType, ActionRowBuilder, ButtonBuilder, ButtonStyle } =
 const pool = require("../../postgresql");
 module.exports = {
     name: "delete_blog",
-    description: "Удаление блога",
+    description: "Удаление личного блога.",
     type: ApplicationCommandType.String,
     run: Run
 }
 async function Run(client, interaction) {
-    const user = await pool.query("SELECT * FROM person WHERE user_id = $1", [interaction.user.id]);
-
+    const user = await pool.query("SELECT * FROM person WHERE user_id = $1 AND guild_id = $2", [interaction.user.id, interaction.guildId]);
     if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply({content: ":x: У вас нет блога", ephemeral: true});
 
     const button = new ActionRowBuilder()
@@ -46,7 +45,7 @@ async function Run(client, interaction) {
         if(id === "delete") {
             const channel = interaction.guild.channels.cache.get(user.rows[0].channel_id)
             if(channel) channel.delete();
-            await pool.query("UPDATE person SET channel_id = 'None', blog = false, channel_create = '0' WHERE user_id = $1", [interaction.user.id]);
+            await pool.query("UPDATE person SET channel_id = 'None', blog = false, messages = 0 WHERE user_id = $1 AND guild_id = $2", [interaction.user.id, interaction.guildId]);
             await pool.query("UPDATE guild SET blog_count = blog_count - 1");
 
             return ButtonInteraction.first().followUp({content: "Блог был удален!", ephemeral: true});
