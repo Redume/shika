@@ -7,8 +7,19 @@ module.exports = {
     run: Run
 }
 async function Run(client, interaction) {
-    const user = await pool.query("SELECT * FROM person WHERE user_id = $1 AND guild_id = $2", [interaction.user.id, interaction.guildId]);
-    if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply({content: ":x: У вас нет блога", ephemeral: true});
+    const user = await pool.query(
+        "SELECT * FROM person WHERE user_id = $1 AND guild_id = $2",
+        [
+            interaction.user.id,
+            interaction.guildId
+        ]
+    );
+
+    if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply(
+        {
+            content: ":x: У вас нет блога",
+            ephemeral: true
+        });
 
     const button = new ActionRowBuilder()
         button.addComponents(
@@ -16,7 +27,8 @@ async function Run(client, interaction) {
             .setCustomId("delete")
             .setLabel("Да")
             .setStyle(ButtonStyle.Danger)
-    )
+    );
+
         button.addComponents(
             new ButtonBuilder()
             .setCustomId("cancel")
@@ -38,20 +50,28 @@ async function Run(client, interaction) {
         time: 60000
     });
 
-    collector.on("end", async (ButtonInteraction) => {
-        await ButtonInteraction.first().deferUpdate();
-        const id = ButtonInteraction.first().customId;
+    collector.on("collect", async (ButtonInteraction) => {
+        await ButtonInteraction.deferUpdate();
+        const id = ButtonInteraction.customId;
 
         if(id === "delete") {
             const channel = interaction.guild.channels.cache.get(user.rows[0].channel_id)
             if(channel) channel.delete();
-            await pool.query("UPDATE person SET channel_id = 'None', blog = false, messages = 0 WHERE user_id = $1 AND guild_id = $2", [interaction.user.id, interaction.guildId]);
+            await pool.query(
+                "UPDATE person SET channel_id = 'None', blog = false, messages = 0 WHERE user_id = $1 AND guild_id = $2",
+                [
+                    interaction.user.id,
+                    interaction.guildId
+                ]);
+
             await pool.query("UPDATE guild SET blog_count = blog_count - 1");
 
-            return ButtonInteraction.first().followUp({content: "Блог был удален!", ephemeral: true});
+            return ButtonInteraction.followUp({content: "Блог был удален!", ephemeral: true});
         }
-        if(id === "cancel") return ButtonInteraction.first().followUp({content: "Отменено удаление блога", ephemeral: true});
+        if(id === "cancel") return ButtonInteraction.followUp({
+            content: "Отменено удаление блога",
+            ephemeral: true
+        });
 
     });
-
 }
