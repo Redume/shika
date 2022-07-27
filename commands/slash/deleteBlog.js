@@ -62,13 +62,15 @@ async function Run(client, interaction) {
                 [
                     interaction.user.id,
                     interaction.guildId
-                ]);
+                ]
+            );
 
-            await pool.query("UPDATE guild SET blog_count = blog_count - 1");
+            await pool.query("UPDATE guild SET blogs_count = blogs_count - 1 WHERE guild_id = $1", [interaction.guildId]);
 
             return ButtonInteraction.followUp({content: "Блог был удален!", ephemeral: true});
         }
-        if(id === "cancel") return ButtonInteraction.followUp({
+        if(id === "cancel") return ButtonInteraction.followUp(
+            {
             content: "Отменено удаление блога",
             ephemeral: true
         });

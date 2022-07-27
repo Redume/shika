@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const pool = require("../postgresql")
+const pool = require("../postgresql");
 module.exports = async (client) => {
     client.user.setPresence({activities: [{ name: 'блоги', type: 5}],  status: 'idle' })
     client.application.commands.set(client.slashArray)
@@ -15,6 +15,7 @@ module.exports = async (client) => {
         const hook = new Discord.WebhookClient({id: '884099794337951784',
             token: 'ERZdjBT5sj4TprvtGnXKwBpQtE-3oCWRAaW2LeKq214nt5izbBuiJ2DhMHM1itNkBXtf'
         });
+
 
         let embed = new Discord.EmbedBuilder()
         embed.setTitle(`${client.user.username}`)

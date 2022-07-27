@@ -10,7 +10,7 @@ module.exports = {
         type: ApplicationCommandOptionType.User,
     }],
     run: Run,
-}
+};
 async function Run(client, interaction) {
     const user = await pool.query(
         "SELECT * FROM person WHERE user_id = $1 AND guild_id = $2",
@@ -64,7 +64,7 @@ async function Run(client, interaction) {
                 value: `<#${user.rows[0].channel_id}>`
             },
             {
-                name: "Всего сообщенеий",
+                name: "Всего сообщений",
                 value: `${user.rows[0].messages}`
             },
             {
@@ -74,7 +74,7 @@ async function Run(client, interaction) {
         ]
     );
 
-    embed.setFooter({text: `Всего блогов: ${guild.rows[0].blog_count}`});
+    embed.setFooter({text: `Всего блогов: ${guild.rows[0].blogs_count} / ${guild.rows[0].max_blogs}`});
     interaction.reply({embeds: [embed], ephemeral: true});
 
 }

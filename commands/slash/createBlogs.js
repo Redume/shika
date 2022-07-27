@@ -29,18 +29,35 @@ async function Run(client, interaction) {
 
     const guild = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [interaction.guildId]);
 
-    if(user.rows[0]?.blog ? user.rows[0]?.blog : false) return interaction.reply({
+    if(user.rows[0]?.blog ? user.rows[0]?.blog : false) return interaction.reply(
+        {
         content: ":x: У вас уже есть блог",
         ephemeral: true
     });
 
-    if(guild.rows[0].max_blogs <= guild.rows[0].blogs_count) return interaction.reply({
+    if(guild.rows[0].max_blogs <= guild.rows[0].blogs_count) return interaction.reply(
+        {
         content: ":x: Вы не можете создать блог, так как уже максимальное кол-во блогов.",
         ephemeral: true
     });
 
+    if(interaction.options.getString("name").length > 70) return interaction.reply(
+        {
+        content: ":x: Название блога не должно превышать 70 символов.",
+        ephemeral: true
+        }
+    );
 
-    const channel = await interaction.guild.channels.create({name: interaction.options.getString("name"),
+    if(interaction.options.getString("description") !== null) {
+        if(interaction.options.getString("description").length > 1024) return interaction.reply(
+            {
+                content: ":x: Описание блога не должно превышать 1024 символов.",
+                ephemeral: true
+            }
+        );
+    }
+    const channel = await interaction.guild.channels.create({
+        name: interaction.options.getString("name"),
         permissionOverwrites: [{
             id: interaction.guild.id,
             deny: PermissionsBitField.Flags.SendMessages
@@ -64,7 +81,7 @@ async function Run(client, interaction) {
         ]
     );
 
-    await pool.query("UPDATE guild SET blog_count = blog_count + 1");
+    await pool.query("UPDATE guild SET blogs_count = blogs_count + 1 WHERE guild_id = $1", [interaction.guildId]);
 
     interaction.reply({content: `Ваш личный блог успешно создан!
                                      <#${channel.id}>`, ephemeral: true});

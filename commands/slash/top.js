@@ -6,16 +6,9 @@ module.exports = {
     description: "Топ пользователей по кол-во сообщений.",
     type: ApplicationCommandType.String,
     run: Run,
-}
+};
 async function Run(client, interaction) {
     const embed = new EmbedBuilder();
-    const top = await pool.query(
-        "SELECT * FROM person WHERE guild_id = $1 ORDER BY messages DESC LIMIT 10",
-        [
-            interaction.guildId
-        ]
-    );
-
     const guild = await pool.query(
         "SELECT * FROM guild WHERE guild_id = $1",
         [
@@ -24,18 +17,39 @@ async function Run(client, interaction) {
     );
 
     let desc = ``;
-    if(guild.rows[0].blog_count === 0) return interaction.reply({
+    if(guild.rows[0].blogs_count === 0) return interaction.reply(
+        {
         content: ":x: Нет блогов в этой гильдии.",
         ephemeral: true
     });
 
-    for(let i = 0; i < top.rows.length;) {
+    const top = await pool.query(
+        "SELECT * FROM person WHERE guild_id = $1 ORDER BY messages DESC LIMIT 10",
+        [
+            interaction.guildId
+        ]
+    );
+    const top_users = [
+        ":first_place:",
+        ":second_place:",
+        ":third_place:",
+        ":four:",
+        ":five:",
+        ":six:",
+        ":seven:",
+        ":eight:",
+        ":nine:",
+        ":keycap_ten:",
+    ];
+
+    for(let i = 0; i < top.rows.length; i++) {
         if(top.rows[i].blog) {
-            desc += `${i+1}. <@!${top.rows[i].user_id}> | <#${top.rows[i].channel_id}> — **${top.rows[i].messages}** ${declOfNum(top.rows[i].messages, 
-                ["сообщение", "сообщения", "сообщений"])}\n`;
-            i++;
+            desc += `${top_users[i]} <@!${top.rows[i].user_id}> | <#${top.rows[i].channel_id}> — **${top.rows[i].messages}** ${declOfNum(top.rows[i].messages, 
+["сообщение", "сообщения", "сообщений"])}\n`;
         }
     }
-    embed.setDescription(desc)
+
+    embed.setDescription(desc);
     interaction.reply({embeds: [embed], ephemeral: true});
+
 }
