@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const pool = require("../postgresql");
+const getWeekDay = require("../utils/getWeekDay");
 module.exports = async (client) => {
     client.user.setPresence({activities: [{ name: 'блоги', type: 5}],  status: 'idle' })
     client.application.commands.set(client.slashArray)
@@ -24,23 +25,26 @@ module.exports = async (client) => {
                                {
                                    name: `Название: `,
                                    value: `\`${error.name}\``
-                               },
-                               {
+                               }, {
                                    name: `Откуда: `,
-                                   value: `\`${error.path || 'Unknow'}\``
-                               },
-                               {
+                                   value: `\`${error.path || 'Не понятно'}\``
+                               }, {
                                    name: `Описание: `,
                                    value: `\`\`\`css\n${error.message.slice(0, 1000)}\`\`\``
-                               },
-                               {
+                               }, {
                                    name: `Трейс: `,
                                    value: `\`\`\`css\n${error.stack.slice(0, 1000)}\`\`\``
                                },
-                               ])
+                               ]
+        )
         hook.send({embeds: [embed]})
     })
 
+    setInterval(async () => {
+      if(getWeekDay() === "Понедельник") {
+          await pool.query("UPDATE person SET messages = 0")
+      }
+    }, 25200000)
 
     client.on("error", (error) => console.error(error));
     client.on("warn", (warn) => console.warn(warn));
