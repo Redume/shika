@@ -1,4 +1,4 @@
-const { ApplicationCommandType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ApplicationCommandType, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField} = require('discord.js');
 const pool = require("../../postgresql");
 module.exports = {
     name: "delete_blog",
@@ -7,19 +7,21 @@ module.exports = {
     run: Run
 }
 async function Run(client, interaction) {
-    const user = await pool.query(
-        "SELECT * FROM person WHERE user_id = $1 AND guild_id = $2",
-        [
-            interaction.user.id,
-            interaction.guildId
-        ]
-    );
+    const user = await interaction.member.getData(interaction.member.id, interaction.guild.id);
 
-    if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply(
+    if(!user.blog) return interaction.reply({content: ":x: У вас нет блога", ephemeral: true});
+
+    if(!interaction.guild.members.cache.get(
+        client.user.id
+    ).permissions.has(
+        PermissionsBitField.Flags.ManageChannels
+    )
+    ) return interaction.reply(
         {
-            content: ":x: У вас нет блога",
+            content: ":x: У бота нет прав удалить ваш блог.",
             ephemeral: true
-        });
+        }
+    );
 
     const button = new ActionRowBuilder()
         button.addComponents(
@@ -36,8 +38,13 @@ async function Run(client, interaction) {
             .setStyle(ButtonStyle.Primary)
     );
 
-    interaction.reply({content: `Вы уверены что хотите удалить свой блог? [ <#${user.rows[0].channel_id}> ] 
-Если вы удалите то потеряете все сообщения!`, components: [button], ephemeral: true});
+    interaction.reply(
+        {
+            content: `Вы уверены что хотите удалить свой блог? [ <#${user.channel_id}> ] `,
+            components: [button],
+            ephemeral: true
+        }
+        );
 
     const filter = (btn) => {
         if(interaction.user.id === btn.user.id) return true;
@@ -55,8 +62,8 @@ async function Run(client, interaction) {
         const id = ButtonInteraction.customId;
 
         if(id === "delete") {
-            const channel = interaction.guild.channels.cache.get(user.rows[0].channel_id)
-            if(channel) channel.delete();
+            const channel = interaction.guild.channels.cache.get(user.channel_id)
+            channel.delete();
             await pool.query(
                 "UPDATE person SET channel_id = 'None', blog = false, messages = 0 WHERE user_id = $1 AND guild_id = $2",
                 [

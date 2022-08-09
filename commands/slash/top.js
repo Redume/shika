@@ -1,6 +1,6 @@
 const { ApplicationCommandType, EmbedBuilder } = require('discord.js');
 const pool = require("../../postgresql");
-const declOfNum = require("../../function/declOfNum");
+const declOfNum = require("../../utils/declOfNum");
 module.exports = {
     name: "top",
     description: "Топ пользователей по кол-во сообщений.",
@@ -9,19 +9,10 @@ module.exports = {
 };
 async function Run(client, interaction) {
     const embed = new EmbedBuilder();
-    const guild = await pool.query(
-        "SELECT * FROM guild WHERE guild_id = $1",
-        [
-            interaction.guildId
-        ]
-    );
+    const guild = await interaction.guild.getData(interaction.guild.id);
 
     let desc = ``;
-    if(guild.rows[0].blogs_count === 0) return interaction.reply(
-        {
-        content: ":x: Нет блогов в этой гильдии.",
-        ephemeral: true
-    });
+    if(guild.blogs_count === 0) return interaction.reply({content: ":x: Нет блогов в этой гильдии.", ephemeral: true});
 
     const top = await pool.query(
         "SELECT * FROM person WHERE guild_id = $1 ORDER BY messages DESC LIMIT 10",
@@ -29,6 +20,7 @@ async function Run(client, interaction) {
             interaction.guildId
         ]
     );
+
     const top_users = [
         ":first_place:",
         ":second_place:",
@@ -44,12 +36,12 @@ async function Run(client, interaction) {
 
     for(let i = 0; i < top.rows.length; i++) {
         if(top.rows[i].blog) {
-            desc += `${top_users[i]} <@!${top.rows[i].user_id}> | <#${top.rows[i].channel_id}> — **${top.rows[i].messages}** ${declOfNum(top.rows[i].messages, 
-["сообщение", "сообщения", "сообщений"])}\n`;
+            desc += `${top_users[i]} <@!${top.rows[i].user_id}> |` +
+            `<#${top.rows[i].channel_id}> — **${top.rows[i].messages}** `+
+                `${declOfNum(top.rows[i].messages, ["сообщение", "сообщения", "сообщений"])}\n`;
         }
     }
 
     embed.setDescription(desc);
     interaction.reply({embeds: [embed], ephemeral: true});
-
 }

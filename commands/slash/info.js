@@ -1,5 +1,4 @@
 const { ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
-const pool = require("../../postgresql")
 module.exports = {
     name: "info",
     description: "Информация о блогах.",
@@ -12,23 +11,24 @@ module.exports = {
     run: Run,
 };
 async function Run(client, interaction) {
-    const user = await pool.query(
-        "SELECT * FROM person WHERE user_id = $1 AND guild_id = $2",
-        [interaction.options.getMember("target")?.user?.id  || interaction.user.id, interaction.guildId]
+    const user = await interaction.member.getData(
+        interaction.member.id ||
+        interaction.options.getMember("target").user.id,
+        interaction.guild.id
     );
-
-    const guild = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [interaction.guildId]);
+    const guild = await interaction.guild.getData(interaction.guild.id);
     const embed = new EmbedBuilder();
 
     if(interaction.options.getMember("target") !== null) {
         if(interaction.options.getMember("target").user.bot) return interaction.reply(
             {
-                content: ":x: У бота не может быть блога \n" +
+                content: ":x: У бота не может быть блога. \n" +
                     "Интересно что-бы они писали бы своих блогах... :thinking:",
                 ephemeral: true
             });
-        if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply(
-            {
+
+        if(!user.blog) return interaction.reply(
+{
                 content: ":x: У этого пользователя нет блога.",
                 ephemeral: true
             });
@@ -38,21 +38,19 @@ async function Run(client, interaction) {
                 name: `Информация о блоге ${interaction.options.getMember("target").user.username}`
             });
     } else {
-        if(!user.rows[0]?.blog ? !user.rows[0]?.blog : false) return interaction.reply(
-            {
-                content: ":x: У вас нет блога", ephemeral: true
-            });
+        if(!user.blog) return interaction.reply({content: ":x: У вас нет блога.", ephemeral: true});
+
         embed.setAuthor(
             {
                 iconURL: interaction.user.displayAvatarURL({dynamic: true}),
-                name: `Информация о вашем блоге`
+                name: `Информация о вашем блоге.`
             });
     }
     const channel_created = Math.round(
         new Date(
             client.guilds
                 .cache.get(interaction.guildId)
-                .channels.cache.get(user?.rows[0]?.channel_id)
+                .channels.cache.get(user.channel_id)
                 ?.createdAt
         )?.getTime() / 1000
     );
@@ -61,11 +59,11 @@ async function Run(client, interaction) {
         [
             {
                 name: "Блог",
-                value: `<#${user.rows[0].channel_id}>`
+                value: `<#${user.channel_id}>`
             },
             {
                 name: "Всего сообщений",
-                value: `${user.rows[0].messages}`
+                value: `${user.messages}`
             },
             {
                 name: "Блог создан",
@@ -74,7 +72,7 @@ async function Run(client, interaction) {
         ]
     );
 
-    embed.setFooter({text: `Всего блогов: ${guild.rows[0].blogs_count} / ${guild.rows[0].max_blogs}`});
+    embed.setFooter({text: `Всего блогов: ${guild.blogs_count} / ${guild.max_blogs}`});
     interaction.reply({embeds: [embed], ephemeral: true});
 
 }

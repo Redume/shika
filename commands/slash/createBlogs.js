@@ -19,23 +19,24 @@ module.exports = {
 }
 
 async function Run(client, interaction) {
-    const user = await pool.query(
-        "SELECT * FROM person WHERE user_id = $1 AND guild_id = $2",
-        [
-            interaction.user.id,
-            interaction.guildId
-        ]
-    );
+    const user = await interaction.member.getData(interaction.member.id, interaction.guild.id);
+    const guild = await interaction.guild.getData(interaction.guild.id);
 
-    const guild = await pool.query("SELECT * FROM guild WHERE guild_id = $1", [interaction.guildId]);
+    if(user.blog) return interaction.reply({content: ":x: У вас уже есть блог.", ephemeral: true});
 
-    if(user.rows[0]?.blog ? user.rows[0]?.blog : false) return interaction.reply(
-        {
-        content: ":x: У вас уже есть блог",
-        ephemeral: true
-    });
+    if(!interaction.guild.members.cache.get(
+            client.user.id
+        ).permissions.has(
+            PermissionsBitField.Flags.ManageChannels
+        )
+        ) return interaction.reply(
+            {
+                content: ":x: У бота нет прав создать вам блог.",
+                ephemeral: true
+            }
+            );
 
-    if(guild.rows[0].max_blogs <= guild.rows[0].blogs_count) return interaction.reply(
+    if(guild.max_blogs === guild.blogs_count) return interaction.reply(
         {
         content: ":x: Вы не можете создать блог, так как уже максимальное кол-во блогов.",
         ephemeral: true
@@ -67,7 +68,7 @@ async function Run(client, interaction) {
         }]
     });
 
-    if(guild.rows[0].blog_parent !== "None") channel.setParent(guild.rows[0].blog_parent);
+    if(guild.blog_parent !== "None") channel.setParent(guild.blog_parent);
     if(interaction.options.getString("description") !== null) channel.setTopic(
         interaction.options.getString('description')
     );
