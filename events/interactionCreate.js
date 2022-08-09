@@ -1,5 +1,4 @@
 const { InteractionType } = require("discord.js")
-const pool = require("../postgresql");
 module.exports = async (client, interaction) => {
     if(interaction.type === InteractionType.ApplicationCommand) {
         const command = client.slash.get(interaction.commandName);
@@ -7,7 +6,7 @@ module.exports = async (client, interaction) => {
 
         const args = [];
         for (let option of interaction.options.data) {
-            if (option.type === 'SUB_COMMAND') {
+            if (option.type === 2) {
                 if (option.name) args.push(option.name);
                 option.options?.forEach(x => {
                     if (x.value) args.push(x.value);
