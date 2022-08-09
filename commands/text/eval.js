@@ -7,7 +7,7 @@ module.exports = {
 	run: Run
 }
 async function Run(client, message, args) {
-	if (!args[0]) return message.reply('Код украли...');
+	if (!args[0]) return message.reply({content: ':thinking: Код украли...'});
 
 	function clean(text) {
 		return text.replace(
@@ -24,14 +24,18 @@ async function Run(client, message, args) {
 	}
 
 	let code = args.join(' ')
-	let out, {author, member, guild, channel} = message
+	let out, { author, member, guild, channel } = message
 	let token = client.token.split("").join("[^]{0,2}")
 	let rev = client.token.split("").reverse().join("[^]{0,2}")
 	let filter = new RegExp(`${token}|${rev}`, "g");
 
 	try {
 		out = eval(code);
-		if (out instanceof Promise || (Boolean(out) && typeof out.then === "function" && typeof out.catch === "function")) out = await out;
+		if (out instanceof Promise ||
+			(Boolean(out) &&
+				typeof out.then === "utils" &&
+				typeof out.catch === "utils")) out = await out;
+
 		out = inspect(out, {depth: 0, maxArrayLength: null});
 		out = out.replace(filter, "[TOKEN]");
 		out = clean(out);
