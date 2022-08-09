@@ -1,7 +1,7 @@
 {
   "name": "shika-blogs",
   "version": "1.0.0",
-  "description": "Менаджер блогов на ArLet",
+  "description": "Бот для блогов.",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"
@@ -16,9 +16,5 @@
     "pg": "^8.7.3",
     "stacktracey": "^2.1.8",
     "yaml": "^2.1.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/redume/ShirinoBlogs.git"
   }
 }
