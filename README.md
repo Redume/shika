@@ -7,17 +7,24 @@
 $ npm i
 ```
 
-2. Создайте базу данных.
+2. Зайдите в пользователя базы данных PostgreSQL.
 ```shell
-$ CREATE DATABASE shika-blogs;
+$ psql -U <DATABASE_USERNAME>
 ```
-3. Подключитесь к базе данных. 
-```shell
-$ \connect shika-blogs;
-```
-4. Создайте таблицы, они находятся [тут](https://github.com/Redume/shika-blogs/tree/main/data/schema.js)
 
-5. Запустите бота.
+3. Создайте базу данных.
+```shell
+$ CREATE DATABASE <DATABASE_NAME>;
+```
+
+4. Подключитесь к базе данных. 
+```shell
+$ \connect <DATABASE_NAME>;
+```
+
+5. Создайте таблицы, они находятся [тут](https://github.com/Redume/shika-blogs/tree/main/data/schema.js)
+
+6. Запустите бота.
 ```shell
 $ node .
 ```
