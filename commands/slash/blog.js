@@ -92,21 +92,23 @@ async function Run(client, interaction) {
             }
         );
 
-        if(interaction.options.getString("name").length > 70) return interaction.reply(
+
+        if (interaction.options.getString("name") === null &&
+            interaction.options.getString("name").length > 70) return interaction.reply(
             {
                 content: ":x: Название блога не должно превышать 70 символов.",
                 ephemeral: true
             }
         );
 
-        if(interaction.options.getString("description") !== null) {
-            if(interaction.options.getString("description").length > 1024) return interaction.reply(
-                {
-                    content: ":x: Описание блога не должно превышать 1024 символов.",
-                    ephemeral: true
-                }
-            );
-        }
+
+        if(interaction.options.getString("description") !== null &&
+            interaction.options.getString("description").length > 1024) return interaction.reply(
+            {
+                content: ":x: Описание блога не должно превышать 1024 символов.",
+                ephemeral: true
+            }
+        );
 
         const channel = await interaction.guild.channels.create({
             name: interaction.options.getString("name"),
@@ -252,7 +254,7 @@ async function Run(client, interaction) {
         if(interaction.options.getString("name") !== null) {
             if(interaction.options.getString("name") === channel.name) return interaction.reply(
                 {
-                    content: ":x: Название блога одинаковое.",
+                    content: ":x: Такое названия блог уже используется.",
                     ephemeral: true
                 }
             );
@@ -264,22 +266,21 @@ async function Run(client, interaction) {
                 }
             );
         } else if(interaction.options.getString("description") !== null) {
-            if (interaction.options.getString("description") === channel.topic) return interaction.reply(
+            if(interaction.options.getString("description") === channel.topic) return interaction.reply(
                 {
-                    content: ":x: Описание блога одинаковое.",
+                    content: ":x: Такое описание уже используется.",
                     ephemeral: true
                 }
             );
 
-            if (interaction.options.getString("description") !== null) {
-                if (interaction.options.getString("description").length > 1024) return interaction.reply(
+            if(interaction.options.getString("description").length > 1024) return interaction.reply(
                     {
                         content: ":x: Новое описание блога не должно превышать 1024 символов.",
                         ephemeral: true
                     }
                 );
-            }
         }
+
         if(interaction.options.getString("description") !== null) channel.setTopic(
             interaction.options.getString("description")
         );
