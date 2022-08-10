@@ -3,6 +3,7 @@
 
 ## Установка бота
 #### Для установки нужен минимум NodeJS 16.9.0, а так же рекомендуется использовать PostgreSQL 14.4
+
 1. Установите необходимые модули.
 ```shell
 $ npm i
@@ -23,7 +24,7 @@ $ CREATE DATABASE <DATABASE_NAME>;
 $ \connect <DATABASE_NAME>;
 ```
 
-5. Создайте таблицы, они находятся [тут](https://github.com/Redume/shika-blogs/tree/main/data/schema.js)
+5. Создайте таблицы, они находятся [тут](https://github.com/Redume/shika-blogs/blob/main/data/schema.sql)
 
 6. Запустите бота.
 ```shell
