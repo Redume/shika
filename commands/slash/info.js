@@ -25,18 +25,22 @@ async function Run(client, interaction) {
                 content: ":x: У бота не может быть блога. \n" +
                     "Интересно что-бы они писали бы своих блогах... :thinking:",
                 ephemeral: true
-            });
+            }
+        );
 
         if(!user.blog) return interaction.reply(
-{
+            {
                 content: ":x: У этого пользователя нет блога.",
                 ephemeral: true
-            });
+            }
+        );
+
         embed.setAuthor(
             {
                 iconURL: interaction.options.getMember("target").user.displayAvatarURL({dynamic: true}),
                 name: `Информация о блоге ${interaction.options.getMember("target").user.username}`
-            });
+            }
+        );
     } else {
         if(!user.blog) return interaction.reply({content: ":x: У вас нет блога.", ephemeral: true});
 
@@ -44,7 +48,8 @@ async function Run(client, interaction) {
             {
                 iconURL: interaction.user.displayAvatarURL({dynamic: true}),
                 name: `Информация о вашем блоге.`
-            });
+            }
+        );
     }
     const channel_created = Math.round(
         new Date(
@@ -60,16 +65,14 @@ async function Run(client, interaction) {
             {
                 name: "Блог",
                 value: `<#${user.channel_id}>`
-            },
-            {
+            }, {
                 name: "Всего сообщений",
                 value: `${user.messages}`
-            },
-            {
+            }, {
                 name: "Блог создан",
                 value: `<t:${channel_created}:d> <t:${channel_created}:t> | <t:${channel_created}:R>`
             },
-        ]
+        ],
     );
 
     embed.setFooter({text: `Всего блогов: ${guild.blogs_count} / ${guild.max_blogs}`});
